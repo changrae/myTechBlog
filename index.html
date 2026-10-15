@@ -6,6 +6,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="코드와 생각을 기록하는 개발 블로그">
     <title>devlog — 개발 블로그</title>
+    <script>
+        // CSS 적용 전에 테마를 결정해 다크모드 플래시를 방지합니다.
+        (function () {
+            var saved = localStorage.getItem('theme');
+            var prefersDark = window.matchMedia &&
+                window.matchMedia('(prefers-color-scheme: dark)').matches;
+            document.documentElement.setAttribute(
+                'data-theme', saved || (prefersDark ? 'dark' : 'light'));
+        })();
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -76,7 +86,7 @@
                 <span class="section-note" id="posts-count">0 articles</span>
             </div>
 
-            <div class="posts" id="posts-container">
+            <div class="post-groups" id="posts-container">
                 <!-- 목록은 app.js가 localStorage에서 불러와 렌더링합니다. -->
             </div>
         </div>
@@ -92,6 +102,7 @@
         </div>
     </footer>
 
+    <script src="published-posts.js"></script>
     <script src="app.js"></script>
 </body>
 

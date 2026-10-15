@@ -1,3 +1,10 @@
+let publishedBlogPosts = [];
+
+function getBlogPosts() {
+    const local = JSON.parse(localStorage.getItem('blogPosts')) || [];
+    return window.PublishedPosts ? PublishedPosts.merge(local, publishedBlogPosts) : local;
+}
+
 // --- AUTHENTICATION HELPERS ---
 
 /**
@@ -17,8 +24,11 @@ function simpleHash(str) {
  */
 function checkAuth() {
     const sessionToken = localStorage.getItem('sessionToken');
-    const isAuthPage = window.location.pathname.includes('login.html') || window.location.pathname.includes('signup.html');
-    
+    const path = window.location.pathname;
+    // import-post.html은 로컬 글 임포트 도구라 로그인 없이 열 수 있습니다.
+    const isAuthPage = path.includes('login.html') || path.includes('signup.html') ||
+        path.includes('import-post.html');
+
     if (!sessionToken && !isAuthPage) {
         window.location.href = 'login.html';
     }
@@ -41,14 +51,14 @@ function updateNav() {
 
     const loggedIn = !!localStorage.getItem('sessionToken');
     const path = window.location.pathname;
-    const onIndex = path.includes('index.html') || path.endsWith('/AI/') ||
-        path.endsWith('/AI') || path === '/';
+    const onIndex = path.endsWith('/index.html') || path.endsWith('/') || path.endsWith('/AI');
     const homeClass = onIndex ? 'nav-link is-active' : 'nav-link';
 
     navUl.innerHTML = loggedIn
         ? `
             <li><a class="${homeClass}" href="index.html">홈</a></li>
             <li><a class="nav-link nav-link--accent" href="create-post.html">새 글 작성</a></li>
+            <li><a class="nav-link" href="import-post.html">자동 글쓰기</a></li>
             <li><a class="nav-link nav-link--danger" href="#" id="logout-btn">로그아웃</a></li>
         `
         : `
@@ -121,6 +131,8 @@ function escapeHtml(str) {
 function makeExcerpt(content, length = 150) {
     const flat = String(content || '')
         .replace(/```[a-zA-Z]*\n?/g, ' ')
+        .replace(/^#{1,6}\s+/gm, ' ')
+        .replace(/\*\*|`/g, '')
         .replace(/\s+/g, ' ')
         .trim();
     return flat.length > length ? `${flat.substring(0, length)}…` : flat;
@@ -136,8 +148,110 @@ function readingTime(content) {
 }
 
 /**
+ * Parses a Korean locale date string into a timestamp (ms).
+ * Handles both "2026. 10. 15. 오후 11:30:00" (toLocaleString output) and
+ * "2026년 10월 15일 오후 11:30:00" style strings.
+ * 오전/오후 표기가 없으면 24시간 표기로 간주합니다.
+ * @param {string} str
+ * @returns {number} timestamp in ms, or 0 when unparseable
+ */
+function parseKoreanDate(str) {
+    const text = String(str || '');
+    const numbers = text.match(/\d+/g);
+    if (!numbers || numbers.length < 3) return 0;
+
+    const [year, month, day, hour = 0, minute = 0, second = 0] = numbers.map(Number);
+
+    let h = hour;
+    if (/오후|저녁|낮/.test(text)) {
+        if (h < 12) h += 12;
+    } else if (/오전|새벽/.test(text)) {
+        if (h === 12) h = 0;
+    }
+
+    return new Date(year, month - 1, day, h, minute, second).getTime() || 0;
+}
+
+/**
+ * Returns a post's creation timestamp (ms) considering time of day.
+ * 우선순위: createdAt 필드 → 작성 날짜 문자열(시·분·초 포함) → ID 안의 타임스탬프.
+ * @param {object} post
+ * @returns {number}
+ */
+function getPostTimestamp(post) {
+    const createdAt = Number(post && post.createdAt);
+    if (createdAt) return createdAt;
+
+    const fromDate = parseKoreanDate(post && post.date);
+    if (fromDate) return fromDate;
+
+    return parseInt(String((post && post.id) || '').replace('post-', ''), 10) || 0;
+}
+
+/**
+ * Inlines simple Markdown-ish syntax inside an already escaped string.
+ * Supports `code`, **bold**, and [text](https://...) links.
+ * @param {string} escaped
+ * @returns {string}
+ */
+function renderInline(escaped) {
+    return escaped
+        .replace(/`([^`]+)`/g, '<code>$1</code>')
+        .replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>')
+        .replace(
+            /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+            '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+        );
+}
+
+/**
+ * Renders an escaped prose block as HTML.
+ * Supports headings (#, ##, ###), unordered (-) / ordered (1.) lists,
+ * blockquotes (>), and paragraphs.
+ * @param {string} escaped
+ * @returns {string}
+ */
+function renderProse(escaped) {
+    return escaped
+        .split(/\n{2,}/)
+        .map(block => {
+            const lines = block.split('\n');
+
+            const heading = block.match(/^(#{1,3})\s+(.*)$/);
+            if (heading) {
+                const level = Math.min(heading[1].length + 1, 4); // h1은 글 제목이 사용
+                return `<h${level}>${renderInline(heading[2])}</h${level}>`;
+            }
+
+            if (lines.every(line => /^\s*[-*]\s+/.test(line))) {
+                const items = lines
+                    .map(line => `<li>${renderInline(line.replace(/^\s*[-*]\s+/, ''))}</li>`)
+                    .join('');
+                return `<ul>${items}</ul>`;
+            }
+
+            if (lines.every(line => /^\s*\d+\.\s+/.test(line))) {
+                const items = lines
+                    .map(line => `<li>${renderInline(line.replace(/^\s*\d+\.\s+/, ''))}</li>`)
+                    .join('');
+                return `<ol>${items}</ol>`;
+            }
+
+            if (lines.every(line => /^&gt;\s?/.test(line))) {
+                const quote = lines
+                    .map(line => renderInline(line.replace(/^&gt;\s?/, '')))
+                    .join('<br>');
+                return `<blockquote>${quote}</blockquote>`;
+            }
+
+            return `<p>${lines.map(line => renderInline(line)).join('<br>')}</p>`;
+        })
+        .join('');
+}
+
+/**
  * Renders a post body as safe HTML.
- * Supports ``` fenced code blocks and paragraph breaks (blank lines).
+ * Supports ``` fenced code blocks and Markdown-ish prose (see renderProse).
  * @param {string} content
  * @returns {string}
  */
@@ -163,10 +277,7 @@ function renderContent(content) {
             const prose = escapeHtml(segment).trim();
             if (!prose) return '';
 
-            return prose
-                .split(/\n{2,}/)
-                .map(paragraph => `<p>${paragraph.replace(/\n/g, '<br>')}</p>`)
-                .join('');
+            return renderProse(prose);
         })
         .join('');
 }
@@ -174,7 +285,7 @@ function renderContent(content) {
 
 // --- MAIN LOGIC ---
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     const path = window.location.pathname;
     const isAuthPage = path.includes('login.html') || path.includes('signup.html');
 
@@ -246,22 +357,45 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- Protected Page Logic ---
         checkAuth();
         updateNav();
+        if (window.PublishedPosts) {
+            const result = await PublishedPosts.load();
+            publishedBlogPosts = result.feed.posts;
+            if (result.stale) {
+                const notice = document.createElement('p');
+                notice.className = 'feed-notice';
+                notice.setAttribute('role', 'status');
+                notice.textContent = '자동 게시글을 최신 상태로 불러오지 못했습니다. 저장된 글을 표시합니다. HTTP 서버 연결을 확인하세요.';
+                document.querySelector('main .container')?.prepend(notice);
+            }
+        }
 
         // --- Logic for index.html ---
-        if (path.includes('index.html') || path.endsWith('/AI/') || path.endsWith('/AI') || path === '/') {
+        if (path.endsWith('/index.html') || path.endsWith('/') || path.endsWith('/AI')) {
             const postsContainer = document.getElementById('posts-container');
             if (postsContainer) {
                 let posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
-                // 최신순(내림차순) 정렬: 타임스탬프 기준, 기본은 등록 역순
-                posts.reverse();
-                posts.sort((a, b) => {
-                    const timeA = parseInt((a.id || '').replace('post-', '')) || 0;
-                    const timeB = parseInt((b.id || '').replace('post-', '')) || 0;
-                    if (timeA && timeB) {
-                        return timeB - timeA;
+
+                // createdAt이 없는 기존 글은 날짜 문자열(시·분·초 포함)로 백필해
+                // 이후 정렬이 항상 실제 작성 시각 기준이 되도록 저장합니다.
+                let backfilled = false;
+                posts.forEach(post => {
+                    if (!post.createdAt) {
+                        const ts = getPostTimestamp(post);
+                        if (ts) {
+                            post.createdAt = ts;
+                            backfilled = true;
+                        }
                     }
-                    return 0;
                 });
+                if (backfilled) {
+                    localStorage.setItem('blogPosts', JSON.stringify(posts));
+                }
+
+                posts = window.PublishedPosts ? PublishedPosts.merge(posts, publishedBlogPosts) : posts;
+
+                // 최신순(내림차순) 정렬: 작성 시각(시·분·초 포함) 기준
+                posts.reverse();
+                posts.sort((a, b) => getPostTimestamp(b) - getPostTimestamp(a));
 
                 // 히어로 영역 통계 갱신
                 const statPosts = document.getElementById('stat-posts');
@@ -271,53 +405,93 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 postsContainer.innerHTML = '';
 
-                if (posts.length === 0) {
-                    postsContainer.innerHTML = `
-                        <div class="empty-state">
-                            <div class="empty-state__icon">
-                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                    stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
-                                    aria-hidden="true">
-                                    <path d="M12 20h9" />
-                                    <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
-                                </svg>
-                            </div>
-                            <h3>아직 작성된 글이 없어요</h3>
-                            <p>첫 번째 글을 작성해 보세요. 배운 것을 기록할 때 더 오래 기억됩니다.</p>
-                            <a href="create-post.html" class="btn btn--primary">첫 글 작성하기 →</a>
-                        </div>
-                    `;
-                } else {
-                    posts.forEach(post => {
-                        const modified = post.lastModified
-                            ? `<span class="meta-sep" aria-hidden="true"></span><span class="meta-badge">수정됨</span>`
-                            : '';
-                        const postPreview = `
-                            <article class="post-card" id="${escapeHtml(post.id)}">
-                                <div class="post-meta">
-                                    <time datetime="${escapeHtml(post.id.replace('post-', ''))}">${escapeHtml(post.date)}</time>
-                                    <span class="meta-sep" aria-hidden="true"></span>
-                                    <span>by ${escapeHtml(post.author)}</span>
-                                    <span class="meta-sep" aria-hidden="true"></span>
-                                    <span>${readingTime(post.content)} min read</span>
-                                    ${modified}
-                                </div>
-                                <h2 class="post-card__title">
-                                    <a href="dynamic-post.html?id=${encodeURIComponent(post.id)}">${escapeHtml(post.title)}</a>
+                const todayStart = new Date();
+                todayStart.setHours(0, 0, 0, 0);
+                const tomorrowStart = new Date(todayStart);
+                tomorrowStart.setDate(tomorrowStart.getDate() + 1);
+                const todayPosts = [];
+                const pastPosts = [];
+                posts.forEach(post => {
+                    const timestamp = getPostTimestamp(post);
+                    (timestamp >= todayStart.getTime() && timestamp < tomorrowStart.getTime()
+                        ? todayPosts : pastPosts).push(post);
+                });
+                const groups = [
+                    { id: 'today', title: 'Today', description: '오늘 올라온 새로운 글', posts: todayPosts,
+                        empty: '오늘 올라온 글이 아직 없어요.' },
+                    { id: 'past', title: '지난글', description: '이전에 기록한 이야기', posts: pastPosts,
+                        empty: '아직 지난글이 없어요.' }
+                ];
+                groups.forEach(group => {
+                    const section = document.createElement('section');
+                    section.className = `post-group post-group--${group.id}`;
+                    section.setAttribute('aria-labelledby', `${group.id}-heading`);
+                    section.innerHTML = `
+                        <header class="post-group__head">
+                            <div>
+                                <h2 class="post-group__title" id="${group.id}-heading">${group.title}
+                                    <span class="post-group__count">${group.posts.length}개</span>
                                 </h2>
-                                <p class="post-card__excerpt">${escapeHtml(makeExcerpt(post.content))}</p>
-                                <div class="post-card__footer">
-                                    <a class="read-more" href="dynamic-post.html?id=${encodeURIComponent(post.id)}">더 읽기 →</a>
-                                    <div class="card-actions">
-                                        <a class="btn btn--ghost btn--sm"
-                                            href="edit-post.html?id=${encodeURIComponent(post.id)}">수정</a>
-                                    </div>
+                                <p class="post-group__description">${group.description}</p>
+                            </div>
+                            ${group.id === 'today' ? `<span class="post-group__date">${todayStart.toLocaleDateString('ko-KR')}</span>` : ''}
+                        </header>
+                        <div class="posts"></div>
+                    `;
+                    const groupContainer = section.querySelector('.posts');
+                    postsContainer.appendChild(section);
+                    if (group.posts.length === 0) {
+                        groupContainer.innerHTML = `<p class="post-group__empty">${group.empty}</p>`;
+                        if (posts.length === 0 && group.id === 'today') {
+                        groupContainer.innerHTML = `
+                            <div class="empty-state">
+                                <div class="empty-state__icon">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                        stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"
+                                        aria-hidden="true">
+                                        <path d="M12 20h9" />
+                                        <path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z" />
+                                    </svg>
                                 </div>
-                            </article>
+                                <h3>아직 작성된 글이 없어요</h3>
+                                <p>첫 번째 글을 작성해 보세요. 배운 것을 기록할 때 더 오래 기억됩니다.</p>
+                                <a href="create-post.html" class="btn btn--primary">첫 글 작성하기 →</a>
+                            </div>
                         `;
-                        postsContainer.insertAdjacentHTML('beforeend', postPreview);
-                    });
-                }
+                        }
+                    } else {
+                        group.posts.forEach(post => {
+                            const modified = post.lastModified
+                                ? `<span class="meta-sep" aria-hidden="true"></span><span class="meta-badge">수정됨</span>`
+                                : '';
+                            const postPreview = `
+                                <article class="post-card" id="${escapeHtml(post.id)}">
+                                    <div class="post-meta">
+                                        ${group.id === 'today' ? '<span class="meta-badge">NEW</span>' : ''}
+                                        <time datetime="${escapeHtml(post.id.replace('post-', ''))}">${escapeHtml(post.date)}</time>
+                                        <span class="meta-sep" aria-hidden="true"></span>
+                                        <span>by ${escapeHtml(post.author)}</span>
+                                        <span class="meta-sep" aria-hidden="true"></span>
+                                        <span>${readingTime(post.content)} min read</span>
+                                        ${modified}
+                                    </div>
+                                    <h3 class="post-card__title">
+                                        <a href="dynamic-post.html?id=${encodeURIComponent(post.id)}">${escapeHtml(post.title)}</a>
+                                    </h3>
+                                    <p class="post-card__excerpt">${escapeHtml(makeExcerpt(post.content))}</p>
+                                    <div class="post-card__footer">
+                                        <a class="read-more" href="dynamic-post.html?id=${encodeURIComponent(post.id)}">더 읽기 →</a>
+                                        <div class="card-actions">
+                                            <a class="btn btn--ghost btn--sm"
+                                                href="edit-post.html?id=${encodeURIComponent(post.id)}">수정</a>
+                                        </div>
+                                    </div>
+                                </article>
+                            `;
+                            groupContainer.insertAdjacentHTML('beforeend', postPreview);
+                        });
+                    }
+                });
             }
         }
 
@@ -327,7 +501,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const postId = urlParams.get('id');
 
             if (postId) {
-                const posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                const posts = getBlogPosts();
                 const post = posts.find(p => p.id === postId);
                 const mainContainer = document.querySelector('main .container');
 
@@ -391,10 +565,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     const title = document.getElementById('post-title').value;
                     const author = document.getElementById('post-author').value || '익명';
                     const content = document.getElementById('post-content').value;
-                    const date = new Date().toLocaleString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
-                    const postId = `post-${Date.now()}`;
+                    const now = Date.now();
+                    const date = new Date(now).toLocaleString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const postId = `post-${now}`;
 
-                    const newPost = { id: postId, title, author, date, content, lastModified: null };
+                    // createdAt: 정렬 기준이 되는 정확한 타임스탬프(ms)
+                    const newPost = { id: postId, title, author, date, content, lastModified: null, createdAt: now };
 
                     let posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
                     posts.push(newPost);
@@ -413,10 +589,16 @@ document.addEventListener('DOMContentLoaded', () => {
             const editForm = document.getElementById('edit-post-form');
 
             if (postId && editForm) {
-                let posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                const posts = getBlogPosts();
                 const post = posts.find(p => p.id === postId);
 
                 if (post) {
+                    if (post.source === 'github-trending') {
+                        const note = document.createElement('p');
+                        note.className = 'feed-notice';
+                        note.textContent = '자동 게시글의 수정 내용은 이 브라우저에만 저장됩니다.';
+                        editForm.prepend(note);
+                    }
                     document.getElementById('post-id').value = post.id;
                     document.getElementById('post-title').value = post.title;
                     document.getElementById('post-content').value = post.content;
@@ -427,14 +609,16 @@ document.addEventListener('DOMContentLoaded', () => {
                         const updatedContent = document.getElementById('post-content').value;
                         const lastModified = new Date().toLocaleString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-                        const postIndex = posts.findIndex(p => p.id === postId);
+                        const localPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                        const editedPost = {...post, title: updatedTitle, content: updatedContent, lastModified};
+                        const postIndex = localPosts.findIndex(p => p.id === postId);
                         if (postIndex > -1) {
-                            posts[postIndex].title = updatedTitle;
-                            posts[postIndex].content = updatedContent;
-                            posts[postIndex].lastModified = lastModified;
+                            localPosts[postIndex] = editedPost;
+                        } else {
+                            localPosts.push(editedPost);
                         }
 
-                        localStorage.setItem('blogPosts', JSON.stringify(posts));
+                        localStorage.setItem('blogPosts', JSON.stringify(localPosts));
                         alert('게시물이 성공적으로 수정되었습니다!');
                         window.location.href = `dynamic-post.html?id=${postId}`;
                     });

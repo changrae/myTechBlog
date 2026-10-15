@@ -1,0 +1,58 @@
+name: Daily Trending Posts
+
+on:
+  schedule:
+    - cron: '0 0 * * *' # 09:00 Asia/Seoul (UTC+9)
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: daily-trending-publisher
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      - name: Generate two articles
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4.1-mini' }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TRENDING_SORT: ${{ vars.TRENDING_SORT || 'total' }}
+        run: python scripts/trending_posts.py --sort "$TRENDING_SORT"
+      - name: Save published articles
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add data/trending-posts.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Publish daily GitHub Trending reviews"
+            git push
+          fi
+      - name: Stage public files only
+        run: |
+          mkdir -p _site/data
+          cp ./*.html ./*.css ./*.js _site/
+          cp data/trending-posts.json _site/data/
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: _site
+      - name: Deploy blog
+        id: deployment
+        uses: actions/deploy-pages@v4

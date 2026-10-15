@@ -8,3 +8,10 @@ Desktop.ini
 .env
 .vscode/
 .idea/
+
+# Automated publisher
+__pycache__/
+*.pyc
+data/*.lock
+data/.trending-*.tmp
+_site/
