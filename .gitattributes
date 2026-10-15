@@ -1,0 +1,14 @@
+# 텍스트 파일은 저장소에서 LF로 정규화하고, 체크아웃도 LF로 유지합니다.
+# (Windows의 core.autocrlf=true로 발생하던 'LF will be replaced by CRLF' 경고 제거)
+* text=auto eol=lf
+
+*.html text eol=lf
+*.css  text eol=lf
+*.js   text eol=lf
+*.md   text eol=lf
+
+# 바이너리는 텍스트 변환하지 않음
+*.png  binary
+*.jpg  binary
+*.ico  binary
+*.woff2 binary

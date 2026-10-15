@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>첫 번째 블로그 게시물 — devlog</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container header-inner">
+            <a href="index.html" class="brand" aria-label="devlog 홈">
+                <span class="brand-mark" aria-hidden="true">&gt;_</span>
+                <span class="brand-name">devlog<span class="cursor">_</span></span>
+            </a>
+            <div class="header-actions">
+                <nav class="site-nav" aria-label="주요 메뉴">
+                    <ul id="nav-list">
+                        <li><a class="nav-link" href="index.html">홈</a></li>
+                    </ul>
+                </nav>
+                <button class="theme-toggle" id="theme-toggle" type="button" aria-label="라이트/다크 테마 전환">
+                    <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true">
+                        <circle cx="12" cy="12" r="4" />
+                        <path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" />
+                    </svg>
+                    <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                        <path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z" />
+                    </svg>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main>
+        <div class="container container--narrow">
+            <article class="post-full">
+                <header>
+                    <div class="post-meta">
+                        <span>2026년 1월 2일</span>
+                        <span class="meta-sep" aria-hidden="true"></span>
+                        <span>1 min read</span>
+                    </div>
+                    <h1 class="post-full__title">첫 번째 블로그 게시물</h1>
+                </header>
+                <div class="post-full__divider" aria-hidden="true"></div>
+                <div class="post-content">
+                    <p>이것은 첫 번째 블로그 게시물의 전체 내용입니다. 이 페이지는 개별 블로그 게시물이 어떻게 보일지를 보여주기 위해 만들어졌습니다.</p>
+                    <p><strong>기술 블로그</strong>는 배운 것을 정리하는 가장 좋은 방법입니다. 아래는 간단한 코드 예시입니다.</p>
+                    <pre><code>function greet(name) {
+  return `Hello, ${name}!`;
+}</code></pre>
+                    <blockquote>코드는 사람을 위해 쓰여야 한다. 컴퓨터가 실행할 수 있는 코드는 부수효과일 뿐이다. — Robert C. Martin</blockquote>
+                    <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed non risus. Suspendisse lectus tortor, dignissim sit amet, adipiscing nec, ultricies sed, dolor. Cras elementum ultrices diam. Maecenas ligula massa, varius a, semper congue, euismod non, mi.</p>
+                </div>
+                <footer class="post-full__footer">
+                    <a class="btn btn--ghost" href="index.html">← 목록으로</a>
+                    <a class="btn btn--primary" href="create-post.html">새 글 작성</a>
+                </footer>
+            </article>
+        </div>
+    </main>
+
+    <footer class="site-footer">
+        <div class="container footer-inner">
+            <p class="footer-copy">&copy; 2026 devlog. Built with curiosity.</p>
+            <ul class="footer-links">
+                <li><a href="index.html">홈</a></li>
+                <li><a href="create-post.html">글 작성</a></li>
+            </ul>
+        </div>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>
