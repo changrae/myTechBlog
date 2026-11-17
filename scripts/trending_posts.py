@@ -166,7 +166,32 @@ gettingStarted는 README에 명시된 시작 방법을 짧게 설명하고, 없�
                    for part in item.get("content", []) if part.get("type") == "output_text")
     summary = json.loads(text)
     validate_summary(summary)
-    return summary
+    return clean_summary(summary)
+
+
+MD_LINK = re.compile(r"!?\[([^\]]*)\]\([^)]*\)")
+BARE_URL = re.compile(r"\b(?:https?|javascript|data|vbscript):\S*", re.IGNORECASE)
+
+
+def clean_text(value):
+    """Strip links, code fences, headings and HTML-ish markup from model output.
+
+    The model is told not to emit links/HTML, but its input (README) is untrusted,
+    so a prompt injection must not be able to place links or structure in the post.
+    """
+    text = MD_LINK.sub(r"\1", str(value))
+    text = BARE_URL.sub("", text)
+    text = text.replace("```", "").replace("<", "").replace(">", "")
+    text = re.sub(r"^\s*#{1,6}\s*", "", text, flags=re.MULTILINE)
+    return re.sub(r"\s+", " ", text).strip()
+
+
+def clean_summary(summary):
+    cleaned = {key: clean_text(summary[key]) for key in ("title", "summary", "gettingStarted")}
+    for key in ("features", "useCases", "cautions"):
+        cleaned[key] = [clean_text(item) for item in summary[key]]
+    validate_summary(cleaned)
+    return cleaned
 
 
 def validate_summary(summary):

@@ -46,6 +46,14 @@ class PublisherTests(unittest.TestCase):
         self.assertEqual(article["publicationDay"], "2026-10-16")
         self.assertIn("https://github.com/a/a/readme", article["content"])
 
+    def test_model_output_is_stripped_of_links_and_markup(self):
+        dirty = {**SUMMARY, "summary": "Visit [here](https://evil.example) now\n## Injected <script>",
+                 "features": ["See https://evil.example/x", "```code```"]}
+        cleaned = p.clean_summary(dirty)
+        self.assertEqual(cleaned["summary"], "Visit here now Injected script")
+        self.assertNotIn("evil", json.dumps(cleaned))
+        self.assertNotIn("```", json.dumps(cleaned))
+
     @patch.dict(os.environ, {"OPENAI_API_KEY": "test-only"})
     def test_atomic_publication_and_same_day_idempotency(self):
         with tempfile.TemporaryDirectory() as folder:

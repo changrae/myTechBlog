@@ -2,17 +2,11 @@
 <html lang="ko">
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>새 글 작성 — devlog</title>
-    <script>
-        (function () {
-            var saved = localStorage.getItem('theme');
-            var prefersDark = window.matchMedia &&
-                window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.setAttribute(
-                'data-theme', saved || (prefersDark ? 'dark' : 'light'));
-        })();
-    </script>
+    <script src="theme-init.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">

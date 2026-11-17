@@ -61,7 +61,7 @@ GitHub Actions 방식은 PC나 브라우저가 꺼져 있어도 실행됩니다.
 
 ```powershell
 python -m unittest discover -s tests -p "test_*.py"
-node --test tests/published-posts.test.cjs
+node --test tests/*.cjs
 ```
 
 ## 참고 문서
