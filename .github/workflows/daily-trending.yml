@@ -34,6 +34,8 @@ jobs:
           OPENAI_MODEL: ${{ vars.OPENAI_MODEL || 'gpt-4.1-mini' }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TRENDING_SORT: ${{ vars.TRENDING_SORT || 'total' }}
+          SUPABASE_URL: ${{ vars.SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
         run: python scripts/trending_posts.py --sort "$TRENDING_SORT"
       - name: Save published articles
         run: |
@@ -46,8 +48,9 @@ jobs:
           fi
       - name: Stage public files only
         run: |
-          mkdir -p _site/data
+          mkdir -p _site/data _site/vendor
           cp ./*.html ./*.css ./*.js _site/
+          cp vendor/*.js _site/vendor/
           cp data/trending-posts.json _site/data/
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

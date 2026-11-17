@@ -54,6 +54,31 @@ class PublisherTests(unittest.TestCase):
         self.assertNotIn("evil", json.dumps(cleaned))
         self.assertNotIn("```", json.dumps(cleaned))
 
+    def test_supabase_sync_sends_ignore_duplicates_rows(self):
+        now = datetime(2026, 10, 16, 9, tzinfo=p.KST)
+        post = p.make_post(repo("a/a", 12, 2), SUMMARY, "https://github.com/a/a/readme", now, "total")
+        feed = {"version": 1, "posts": [post, {"id": "manual", "source": "user"}]}
+        with patch.object(p, "request", return_value="") as call:
+            self.assertEqual(p.sync_to_supabase(feed, ("https://abc.supabase.co", "sb_secret_x")), 1)
+        url, kwargs = call.call_args.args[0], call.call_args.kwargs
+        self.assertEqual(url, "https://abc.supabase.co/rest/v1/posts?on_conflict=id")
+        self.assertIsNone(kwargs["token"])
+        self.assertEqual(kwargs["headers"]["apikey"], "sb_secret_x")
+        self.assertIn("ignore-duplicates", kwargs["headers"]["Prefer"])
+        row = kwargs["payload"][0]
+        self.assertEqual(row["source"], "github-trending")
+        self.assertEqual(row["created_at"], "2026-10-16T00:00:00+00:00")
+        self.assertEqual(row["metadata"]["repository"]["name"], "a/a")
+
+    def test_supabase_settings_validation(self):
+        with patch.dict(os.environ, {"SUPABASE_URL": "", "SUPABASE_SERVICE_ROLE_KEY": ""}):
+            self.assertIsNone(p.supabase_settings())
+        with patch.dict(os.environ, {"SUPABASE_URL": "http://insecure.example", "SUPABASE_SERVICE_ROLE_KEY": "k"}):
+            with self.assertRaises(RuntimeError):
+                p.supabase_settings()
+        with patch.dict(os.environ, {"SUPABASE_URL": "https://abc.supabase.co/", "SUPABASE_SERVICE_ROLE_KEY": "k"}):
+            self.assertEqual(p.supabase_settings(), ("https://abc.supabase.co", "k"))
+
     @patch.dict(os.environ, {"OPENAI_API_KEY": "test-only"})
     def test_atomic_publication_and_same_day_idempotency(self):
         with tempfile.TemporaryDirectory() as folder:

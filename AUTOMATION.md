@@ -21,6 +21,10 @@ README와 설명을 OpenAI Responses API로 한국어 요약해 `data/trending-p
 Actions Variables:
 - `OPENAI_MODEL`: 기본 `gpt-4.1-mini`. 구조화 응답을 지원하는 접근 가능한 모델을 지정하세요.
 - `TRENDING_SORT`: `total`(누적 Star, 기본) 또는 `daily`(오늘 증가 Star).
+- `SUPABASE_URL`: Supabase 프로젝트 URL. 설정하면 게시 글을 DB `posts` 테이블에도 넣습니다.
+
+Actions Secrets(선택):
+- `SUPABASE_SERVICE_ROLE_KEY`: DB에 자동 글을 넣을 때 쓰는 서버 전용 키. 브라우저나 저장소 파일에 넣지 마세요.
 
 API 호출 비용이 발생합니다. 키는 Secret/실행 환경에만 두고 커밋하거나 브라우저에 입력하지 마세요.
 README는 최대 24,000자만 요약 입력으로 사용합니다. 긴 문서 전체나 실제 코드를 검토한 결과가 아닙니다.
@@ -51,10 +55,12 @@ GitHub Actions 방식은 PC나 브라우저가 꺼져 있어도 실행됩니다.
 - 로컬 lock 파일과 Actions concurrency로 동시 게시를 막습니다.
 - 프로세스를 강제 종료한 경우 실행 중인 작업이 없는지 확인한 후 남은 `data/trending-posts.lock`을 제거합니다.
 - README를 읽지 못하거나 Trending 구조가 바뀐 경우 순위가 낮은 다른 저장소로 몰래 대체하지 않습니다.
-- 공용 자동 글은 서버 JSON에서 읽고, 기존 수동 글은 localStorage에 유지합니다.
-- 자동 글의 편집은 기존 기능과 동일하게 해당 브라우저에만 저장됩니다. 공용 원문에는 반영되지 않습니다.
+- 블로그 화면은 자동 글과 사용자 글을 모두 Supabase `posts` 테이블에서 읽습니다. JSON은 자동 게시 현황 페이지와 DB 동기화의 원본으로 씁니다.
+- 매 실행마다 JSON의 자동 글 전체를 DB에 다시 보내고, 이미 있는 글은 건너뜁니다. DB 동기화가 실패해도 JSON 커밋은 진행되며 Actions에 경고가 표시되고 다음 실행 때 다시 시도합니다.
+- `python scripts/trending_posts.py --sync-db`는 수집·요약 없이 JSON의 글을 DB로만 옮깁니다.
+- 자동 글은 RLS 정책상 사용자가 수정할 수 없습니다.
 - 네트워크 실패 시 마지막 자동 글 캐시를 표시하며 경고를 보여줍니다.
-- 기존 로그인 동작을 유지합니다. 목록 열람 전 로그인 화면이 나타날 수 있습니다.
+- 글 목록과 본문은 로그인 없이 열람할 수 있습니다.
 - 기존 import-post.html에 들어 있던 수동 임포트 자료는 `data/legacy-import-post.json`에 보관합니다.
 
 ## 검증

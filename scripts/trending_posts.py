@@ -54,10 +54,12 @@ class TrendingParser(HTMLParser):
             self.row = None
 
 
-def request(url, *, token=None, payload=None):
+def request(url, *, token=None, payload=None, headers=None):
+    extra = headers or {}
     headers = {"User-Agent": "devlog-trending-publisher", "Accept": "text/html" if url.startswith("https://github.com/") else "application/json"}
     if token:
         headers["Authorization"] = f"Bearer {token}"
+    headers.update(extra)
     data = None
     if payload is not None:
         data = json.dumps(payload).encode("utf-8")
@@ -323,14 +325,64 @@ def publish(path, sort_by="total", now=None):
         return {"status": "published", **feed["lastRun"]}
 
 
+def supabase_settings():
+    """Returns (url, key) when DB sync is configured, None when it is not."""
+    url = os.getenv("SUPABASE_URL", "").strip().rstrip("/")
+    key = os.getenv("SUPABASE_SERVICE_ROLE_KEY", "").strip()
+    if not url and not key:
+        return None
+    if not re.fullmatch(r"https://[A-Za-z0-9.-]+(:\d+)?", url) or not key:
+        raise RuntimeError("DB 동기화에는 SUPABASE_URL(https://...)과 SUPABASE_SERVICE_ROLE_KEY가 모두 필요합니다.")
+    return url, key
+
+
+def to_row(post):
+    created = datetime.fromtimestamp(post["createdAt"] / 1000, tz=timezone.utc).isoformat()
+    return {"id": post["id"], "title": post["title"][:200], "content": post["content"],
+            "author_name": post.get("author", "devlog")[:50], "author_id": None,
+            "source": "github-trending", "created_at": created,
+            "metadata": {key: post.get(key) for key in
+                         ("repository", "readmeUrl", "sortBy", "publicationDay") if key in post}}
+
+
+def sync_to_supabase(feed, settings):
+    """Inserts automatic posts that the DB does not have yet. Existing rows are left untouched."""
+    url, key = settings
+    rows = [to_row(p) for p in feed["posts"] if p.get("source") == "github-trending"]
+    # Legacy service_role keys are JWTs and also go in Authorization; new secret keys use apikey only.
+    token = key if key.startswith("eyJ") else None
+    for start in range(0, len(rows), 100):
+        request(f"{url}/rest/v1/posts?on_conflict=id", token=token, payload=rows[start:start + 100],
+                headers={"apikey": key, "Prefer": "resolution=ignore-duplicates,return=minimal"})
+    return len(rows)
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--inspect", action="store_true", help="Collect top two; no AI call or publication")
     parser.add_argument("--sort", choices=["total", "daily"], default="total")
+    parser.add_argument("--sync-db", action="store_true",
+                        help="Only copy posts from the JSON feed into Supabase; no collection or AI call")
     parser.add_argument("--output", type=Path, default=ROOT / "data" / "trending-posts.json")
     args = parser.parse_args()
     try:
-        result = candidates(args.sort)[:2] if args.inspect else publish(args.output, args.sort)
+        if args.inspect:
+            result = candidates(args.sort)[:2]
+        else:
+            settings = supabase_settings()
+            if args.sync_db and not settings:
+                raise RuntimeError("SUPABASE_URL과 SUPABASE_SERVICE_ROLE_KEY를 설정하세요.")
+            result = {"status": "sync-only"} if args.sync_db else publish(args.output, args.sort)
+            if settings:
+                # Re-sends the whole feed each run so a failed sync heals on the next run.
+                try:
+                    result["dbSynced"] = sync_to_supabase(load_feed(args.output), settings)
+                except Exception as exc:
+                    if args.sync_db:
+                        raise
+                    # Keep exit 0 so the JSON feed is still committed; surface it in the Actions UI.
+                    result["dbSyncError"] = str(exc)
+                    print(f"::warning::DB 동기화 실패(다음 실행 때 재시도): {exc}", file=sys.stderr)
         print(json.dumps(result, ensure_ascii=False, indent=2))
     except Exception as exc:
         print(f"Publication failed: {exc}", file=sys.stderr)
