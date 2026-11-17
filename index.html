@@ -3,19 +3,12 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' https://fonts.googleapis.com https://cdn.jsdelivr.net; font-src 'self' https://fonts.gstatic.com https://cdn.jsdelivr.net; img-src 'self' data:; connect-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'">
+    <meta name="referrer" content="strict-origin-when-cross-origin">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="코드와 생각을 기록하는 개발 블로그">
     <title>devlog — 개발 블로그</title>
-    <script>
-        // CSS 적용 전에 테마를 결정해 다크모드 플래시를 방지합니다.
-        (function () {
-            var saved = localStorage.getItem('theme');
-            var prefersDark = window.matchMedia &&
-                window.matchMedia('(prefers-color-scheme: dark)').matches;
-            document.documentElement.setAttribute(
-                'data-theme', saved || (prefersDark ? 'dark' : 'light'));
-        })();
-    </script>
+    <script src="theme-init.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link

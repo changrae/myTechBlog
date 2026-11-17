@@ -1,43 +1,112 @@
 let publishedBlogPosts = [];
 
+/**
+ * Reads a JSON array from localStorage without crashing on corrupted data.
+ * @param {string} key
+ * @returns {Array}
+ */
+function readList(key) {
+    try {
+        const value = JSON.parse(localStorage.getItem(key));
+        return Array.isArray(value) ? value : [];
+    } catch {
+        return [];
+    }
+}
+
 function getBlogPosts() {
-    const local = JSON.parse(localStorage.getItem('blogPosts')) || [];
+    const local = readList('blogPosts');
     return window.PublishedPosts ? PublishedPosts.merge(local, publishedBlogPosts) : local;
 }
 
 // --- AUTHENTICATION HELPERS ---
+// 주의: 이 블로그는 서버가 없는 정적 사이트라 인증은 브라우저 안에서만 동작합니다.
+// 같은 브라우저의 다른 사용자/확장 프로그램으로부터 비밀번호 원문을 보호하는 용도이며,
+// 서버 측 권한 검사를 대신하지 않습니다.
 
-/**
- * A simple "hashing" function for demonstration.
- * IMPORTANT: This is NOT a secure hashing algorithm.
- * In a real application, use a library like bcrypt.
- * @param {string} str The string to "hash".
- * @returns {string} The "hashed" string.
- */
-function simpleHash(str) {
-    return str.split('').reverse().join('');
+const USERNAME_PATTERN = /^[A-Za-z0-9_.-]{3,30}$/;
+const MIN_PASSWORD_LENGTH = 8;
+const PBKDF2_ITERATIONS = 210000;
+
+function toHex(buffer) {
+    return [...new Uint8Array(buffer)].map(b => b.toString(16).padStart(2, '0')).join('');
+}
+
+function randomHex(bytes = 16) {
+    return toHex(crypto.getRandomValues(new Uint8Array(bytes)));
 }
 
 /**
- * Checks if the user is logged in by looking for a session token.
- * If not found, redirects to the login page.
+ * Derives a salted PBKDF2-SHA256 hash with the Web Crypto API.
+ * @param {string} password
+ * @param {string} salt hex string
+ * @returns {Promise<string>} hex hash
+ */
+async function hashPassword(password, salt) {
+    const key = await crypto.subtle.importKey(
+        'raw', new TextEncoder().encode(password), 'PBKDF2', false, ['deriveBits']);
+    const bits = await crypto.subtle.deriveBits(
+        { name: 'PBKDF2', hash: 'SHA-256', salt: new TextEncoder().encode(salt), iterations: PBKDF2_ITERATIONS },
+        key, 256);
+    return toHex(bits);
+}
+
+/** Constant-time string comparison. */
+function safeEqual(a, b) {
+    if (typeof a !== 'string' || typeof b !== 'string' || a.length !== b.length) return false;
+    let diff = 0;
+    for (let i = 0; i < a.length; i++) diff |= a.charCodeAt(i) ^ b.charCodeAt(i);
+    return diff === 0;
+}
+
+/**
+ * Verifies a password. Accounts created by the old version stored the
+ * reversed password; they are upgraded to PBKDF2 on successful login.
+ * @returns {Promise<boolean>}
+ */
+async function verifyPassword(user, password) {
+    if (user.salt) return safeEqual(await hashPassword(password, user.salt), user.password);
+    if (!safeEqual(password.split('').reverse().join(''), user.password)) return false;
+    user.salt = randomHex();
+    user.password = await hashPassword(password, user.salt);
+    return true;
+}
+
+/** Issues an unguessable session token bound to the user. */
+function startSession(users, user) {
+    user.sessionToken = randomHex(32);
+    localStorage.setItem('blogUsers', JSON.stringify(users));
+    localStorage.setItem('sessionToken', user.sessionToken);
+}
+
+/** Returns the logged-in user or null when the session token is unknown. */
+function currentUser() {
+    const token = localStorage.getItem('sessionToken');
+    if (!token) return null;
+    return readList('blogUsers').find(u => u && safeEqual(u.sessionToken, token)) || null;
+}
+
+/**
+ * Checks if the user has a valid session; otherwise redirects to login.
+ * @returns {boolean} true when the page may render
  */
 function checkAuth() {
-    const sessionToken = localStorage.getItem('sessionToken');
-    const path = window.location.pathname;
-    // import-post.html은 로컬 글 임포트 도구라 로그인 없이 열 수 있습니다.
-    const isAuthPage = path.includes('login.html') || path.includes('signup.html') ||
-        path.includes('import-post.html');
-
-    if (!sessionToken && !isAuthPage) {
-        window.location.href = 'login.html';
-    }
+    if (currentUser()) return true;
+    localStorage.removeItem('sessionToken');
+    window.location.href = 'login.html';
+    return false;
 }
 
 /**
- * Logs the user out by clearing the session token and redirecting to login.
+ * Logs the user out by invalidating the session token and redirecting to login.
  */
 function handleLogout() {
+    const users = readList('blogUsers');
+    const user = users.find(u => u && safeEqual(u.sessionToken, localStorage.getItem('sessionToken')));
+    if (user) {
+        delete user.sessionToken;
+        localStorage.setItem('blogUsers', JSON.stringify(users));
+    }
     localStorage.removeItem('sessionToken');
     window.location.href = 'login.html';
 }
@@ -296,38 +365,36 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (isAuthPage) {
         // --- Logic for Signup Page ---
         if (path.includes('signup.html')) {
-            console.log('Signup page detected'); // Debug log
             const signupForm = document.getElementById('signup-form');
             if (signupForm) {
-                console.log('Signup form found'); // Debug log
-                signupForm.addEventListener('submit', (event) => {
+                signupForm.addEventListener('submit', async (event) => {
                     event.preventDefault();
-                    console.log('Signup form submitted'); // Debug log
-                    const username = document.getElementById('username').value;
+                    const username = document.getElementById('username').value.trim();
                     const password = document.getElementById('password').value;
-                    
-                    let users = JSON.parse(localStorage.getItem('blogUsers')) || [];
-                    console.log('Current users:', users); // Debug log
-                    
-                    if (users.find(u => u.username === username)) {
+
+                    if (!USERNAME_PATTERN.test(username)) {
+                        alert('사용자 이름은 영문, 숫자, _ . - 조합 3~30자로 입력하세요.');
+                        return;
+                    }
+                    if (password.length < MIN_PASSWORD_LENGTH) {
+                        alert(`비밀번호는 ${MIN_PASSWORD_LENGTH}자 이상이어야 합니다.`);
+                        return;
+                    }
+
+                    const users = readList('blogUsers');
+                    if (users.find(u => u && u.username.toLowerCase() === username.toLowerCase())) {
                         alert('이미 존재하는 사용자 이름입니다.');
                         return;
                     }
 
-                    const newUser = {
-                        username,
-                        password: simpleHash(password) // Insecure, for demo only!
-                    };
+                    const salt = randomHex();
+                    const newUser = { username, salt, password: await hashPassword(password, salt) };
                     users.push(newUser);
-                    localStorage.setItem('blogUsers', JSON.stringify(users));
-                    console.log('User saved:', newUser); // Debug log
+                    startSession(users, newUser);
 
                     alert(`회원가입이 완료되었습니다. '${username}'님, 환영합니다! 바로 블로그 메인 페이지로 이동합니다.`);
-                    localStorage.setItem('sessionToken', `token-for-${username}`); // Automatically log in
-                    window.location.href = 'index.html'; // Redirect to homepage
+                    window.location.href = 'index.html';
                 });
-            } else {
-                console.error('Signup form NOT found'); // Debug log
             }
         }
 
@@ -335,16 +402,16 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (path.includes('login.html')) {
             const loginForm = document.getElementById('login-form');
             if (loginForm) {
-                loginForm.addEventListener('submit', (event) => {
+                loginForm.addEventListener('submit', async (event) => {
                     event.preventDefault();
-                    const username = document.getElementById('username').value;
+                    const username = document.getElementById('username').value.trim();
                     const password = document.getElementById('password').value;
 
-                    let users = JSON.parse(localStorage.getItem('blogUsers')) || [];
-                    const foundUser = users.find(u => u.username === username && u.password === simpleHash(password));
+                    const users = readList('blogUsers');
+                    const foundUser = users.find(u => u && u.username === username);
 
-                    if (foundUser) {
-                        localStorage.setItem('sessionToken', `token-for-${username}`);
+                    if (foundUser && await verifyPassword(foundUser, password)) {
+                        startSession(users, foundUser);
                         window.location.href = 'index.html';
                     } else {
                         alert('사용자 이름 또는 비밀번호가 잘못되었습니다.');
@@ -355,7 +422,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     } else {
         // --- Protected Page Logic ---
-        checkAuth();
+        if (!checkAuth()) return;
         updateNav();
         if (window.PublishedPosts) {
             const result = await PublishedPosts.load();
@@ -373,7 +440,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (path.endsWith('/index.html') || path.endsWith('/') || path.endsWith('/AI')) {
             const postsContainer = document.getElementById('posts-container');
             if (postsContainer) {
-                let posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                let posts = readList('blogPosts');
 
                 // createdAt이 없는 기존 글은 날짜 문자열(시·분·초 포함)로 백필해
                 // 이후 정렬이 항상 실제 작성 시각 기준이 되도록 저장합니다.
@@ -572,7 +639,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     // createdAt: 정렬 기준이 되는 정확한 타임스탬프(ms)
                     const newPost = { id: postId, title, author, date, content, lastModified: null, createdAt: now };
 
-                    let posts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                    const posts = readList('blogPosts');
                     posts.push(newPost);
                     localStorage.setItem('blogPosts', JSON.stringify(posts));
 
@@ -609,7 +676,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         const updatedContent = document.getElementById('post-content').value;
                         const lastModified = new Date().toLocaleString('ko-KR', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit', second: '2-digit' });
 
-                        const localPosts = JSON.parse(localStorage.getItem('blogPosts')) || [];
+                        const localPosts = readList('blogPosts');
                         const editedPost = {...post, title: updatedTitle, content: updatedContent, lastModified};
                         const postIndex = localPosts.findIndex(p => p.id === postId);
                         if (postIndex > -1) {
@@ -620,7 +687,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
                         localStorage.setItem('blogPosts', JSON.stringify(localPosts));
                         alert('게시물이 성공적으로 수정되었습니다!');
-                        window.location.href = `dynamic-post.html?id=${postId}`;
+                        window.location.href = `dynamic-post.html?id=${encodeURIComponent(postId)}`;
                     });
                 } else {
                     document.querySelector('main .container').innerHTML = `

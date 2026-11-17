@@ -10,16 +10,17 @@ function element() {
         appendChild(e){this.children.push(e)},prepend(e){this.children.unshift(e)},
         insertAdjacentHTML(_,s){this.innerHTML+=s},querySelector(){return this.list ||= element()}};
 }
-async function render(path, local=[]) {
+async function render(path, local=[], {session='test', users=[{username:'tester',sessionToken:'test'}]}={}) {
     const main=element(), nodes=new Map();
     const ids=['posts-container','stat-posts','posts-count'];
     if(path.includes('edit-post')) ids.push('edit-post-form','post-id','post-title','post-content');
     ids.forEach(id=>nodes.set(id,element()));
-    const values=new Map([['sessionToken','test'],['blogPosts',JSON.stringify(local)]]);
+    const values=new Map([['blogPosts',typeof local==='string'?local:JSON.stringify(local)],['blogUsers',JSON.stringify(users)]]);
+    if(session) values.set('sessionToken',session);
     let callback;
-    const context={console,URLSearchParams,Date,AbortSignal,alert(){},
+    const context={console,URLSearchParams,Date,AbortSignal,TextEncoder,crypto:globalThis.crypto,alert(){},
         window:{location:{pathname:path,search:'?id=trending-test'},matchMedia:()=>({matches:false})},
-        localStorage:{getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v)},
+        localStorage:{getItem:k=>values.get(k)||null,setItem:(k,v)=>values.set(k,v),removeItem:k=>values.delete(k)},
         fetch:async()=>({ok:true,json:async()=>({version:1,posts:[post]})}),
         document:{documentElement:element(),getElementById:id=>nodes.get(id)||null,
             createElement:element,querySelector:()=>main,addEventListener:(_,fn)=>callback=fn}};
@@ -27,7 +28,7 @@ async function render(path, local=[]) {
     context.PublishedPosts=context.window.PublishedPosts;
     vm.runInNewContext(app,context);
     await callback();
-    return {nodes,values,main};
+    return {nodes,values,main,context};
 }
 test('GitHub Pages subdirectory home displays shared and local posts without copying shared posts',async()=>{
     const local={...post,id:'local',source:undefined,title:'My local post'};
@@ -54,4 +55,28 @@ test('shared article can be edited locally and preserves other local posts',asyn
     assert.equal(saved.length,2);
     assert.equal(saved.find(p=>p.id==='local').title,'Existing');
     assert.equal(saved.find(p=>p.id===post.id).title,'Edited locally');
+});
+
+test('forged or unknown session token is rejected and redirects to login',async()=>{
+    const {context,nodes}=await render('/myTechBlog/',[],{session:'token-for-admin'});
+    assert.equal(context.window.location.href,'login.html');
+    assert.equal(nodes.get('posts-container').children.length,0);
+});
+test('corrupted localStorage does not break the home page',async()=>{
+    const {nodes}=await render('/myTechBlog/','{not json');
+    assert.equal(nodes.get('posts-container').children.length,2);
+});
+test('passwords are stored as salted PBKDF2 and legacy accounts are upgraded',async()=>{
+    const {context}=await render('/myTechBlog/dynamic-post.html');
+    const salt='00ff';
+    const hash=await vm.runInContext(`hashPassword('correct horse',${JSON.stringify(salt)})`,context);
+    assert.match(hash,/^[0-9a-f]{64}$/);
+    assert.ok(!hash.includes('esroh'));
+    const legacy={username:'old',password:'drowssap-dlo'};
+    context.legacy=legacy;
+    assert.equal(await vm.runInContext(`verifyPassword(legacy,'wrong')`,context),false);
+    assert.equal(await vm.runInContext(`verifyPassword(legacy,'old-password')`,context),true);
+    assert.ok(legacy.salt);
+    assert.match(legacy.password,/^[0-9a-f]{64}$/);
+    assert.equal(await vm.runInContext(`verifyPassword(legacy,'old-password')`,context),true);
 });
