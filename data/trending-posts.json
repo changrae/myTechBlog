@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-17T16:31:22.144269+09:00",
+  "updatedAt": "2026-11-18T10:16:31.913770+09:00",
   "posts": [
     {
       "id": "trending-2026-11-17-sveltejs--svelte",
@@ -76,15 +76,83 @@
       },
       "readmeUrl": "https://github.com/mvanhorn/last30days-skill/blob/main/README.md",
       "sortBy": "total"
+    },
+    {
+      "id": "trending-2026-11-18-obra--superpowers",
+      "title": "obra/superpowers",
+      "author": "devlog · GitHub Trending",
+      "date": "2026년 11월 18일 10:16:31",
+      "createdAt": 1794964591913,
+      "lastModified": null,
+      "content": "## 한눈에 보기\n\nSuperpowers is a comprehensive software development methodology and framework designed for AI coding agents. It structures development through stages including brainstorming, design approval, detailed planning, subagent-driven task execution, test-driven development, and rigorous code review. The system emphasizes simplicity, evidence-based verification, and systematic workflows rather than ad-hoc coding. It supports various AI coding platforms through plugins and offers commercial support options.\n\n## 주요 기능\n\n- Agentic skills framework enabling autonomous coding agents.\n- Subagent-driven development with task decomposition and review.\n- Integration of test-driven development (TDD) with enforced RED-GREEN-REFACTOR cycles.\n- Comprehensive collaboration skills including brainstorming, planning, code review, and branch management.\n\n## 이런 경우에 활용할 수 있어요\n\n- Accelerating software development by autonomous AI agents following clear plans.\n- Ensuring high-quality code via systematic testing and reviews.\n- Managing complex coding projects with modular subagent task delegation.\n- Supporting multiple AI coding platforms through a unified methodology.\n\n## 시작하기\n\nInstallation varies by platform; users install the Superpowers plugin via their respective AI coding agent’s marketplace or plugin system. The README provides detailed install commands for many environments including Claude Code, Antigravity, Codex, Gemeni CLI, and others.\n\n## 도입 전에 확인할 점\n\n- Skill updates must be compatible across all supported coding agents.\n- Contributions of new skills are generally not accepted to maintain system integrity.\n- Long AI sessions may lose bootstrap effects due to session compaction on some platforms (e.g., Hermes Agent).\n- Visual companion telemetry is enabled by default but can be opt-out via environment variables to protect usage privacy.\n\n## 선정 기준과 저장소 정보\n\n- 2026-11-18 GitHub Trending 일간 목록에서 누적 Star 내림차순 상위 2개 선정\n- 누적 Star: 319,345 / 오늘 증가: 1,917\n- 주요 언어: Shell / 라이선스 표기: MIT\n- 저장소 보관 상태: 보관되지 않음\n- 수집 시각: 2026-11-18 10:16 KST\n\n이 글은 저장소 설명과 README를 바탕으로 AI가 요약한 문서 리뷰입니다. 직접 설치·실행한 결과가 아니며 Star 수는 수집 시점 기준입니다.\n\n## 참고 자료\n\n- [GitHub 저장소](https://github.com/obra/superpowers)\n- [원문 README](https://github.com/obra/superpowers/blob/main/README.md)\n- [GitHub Trending 일간 목록](https://github.com/trending?since=daily)\n",
+      "source": "github-trending",
+      "publicationDay": "2026-11-18",
+      "repository": {
+        "name": "obra/superpowers",
+        "url": "https://github.com/obra/superpowers",
+        "stars": 319345,
+        "todayStars": 1917,
+        "description": "An agentic skills framework & software development methodology that works.",
+        "language": "Shell",
+        "license": "MIT",
+        "topics": [
+          "ai",
+          "brainstorming",
+          "coding",
+          "obra",
+          "sdlc",
+          "skills",
+          "subagent-driven-development",
+          "superpowers"
+        ],
+        "updatedAt": "2026-11-03T23:24:58Z",
+        "archived": false
+      },
+      "readmeUrl": "https://github.com/obra/superpowers/blob/main/README.md",
+      "sortBy": "total"
+    },
+    {
+      "id": "trending-2026-11-18-affaan-m--ECC",
+      "title": "affaan-m/ECC - Agent Harness Performance Optimization System",
+      "author": "devlog · GitHub Trending",
+      "date": "2026년 11월 18일 10:16:31",
+      "createdAt": 1794964591913,
+      "lastModified": null,
+      "content": "## 한눈에 보기\n\nECC is an open-source engineering system designed to optimize AI agents' development workflows. It provides coordinated planning, testing, implementation, review, verification, memory, and improvement processes tailored for AI coding assistants like Claude Code and Codex. ECC includes over 70 specialized agents, 300 skills, commands, hooks, rules, and security scanning tools to enhance productivity and code quality. The system supports multiple harnesses and integrates with various LLM-based coding tools through native plugins or adapters.\n\n## 주요 기능\n\n- Coordinated engineering workflow with planning, testing, review, and continuous improvement.\n- Extensive library of 72 agents and 327 skills covering development, security, research, and more.\n- Native plugin support for Claude Code, Codex, and adapters for many other coding harnesses.\n- AgentShield security scanning and continuous learning with hooks and memory management.\n\n## 이런 경우에 활용할 수 있어요\n\n- Enhancing AI agent-based code generation with structured development processes.\n- Automating code review, testing, and code quality checks within AI coding workflows.\n- Integrating AI engineering skills and workflows into multiple LLM-based coding platforms.\n- Improving productivity and reducing manual repetition for AI-assisted software projects.\n\n## 시작하기\n\nUse the guided setup with Node.js 18+ by running 'npx ecc-universal@2.2.3 setup' for Claude Code plugin installation. The process includes prerequisite checks for Git, Claude Code, and Node, then allows choosing install scopes and hook profiles interactively. Detailed setup steps are available for Windows and other environments. Alternate installation methods exist for Codex and other harnesses, with native plugin commands for Claude Code also supported.\n\n## 도입 전에 확인할 점\n\n- Install ECC only from verified official sources to avoid malware risks.\n- Do not stack multiple installation methods for the same harness to prevent conflicts or duplication.\n- Ensure all prerequisites like Node.js 18+, Git, and Claude Code 2.1+ are installed and accessible in PATH before setup.\n- Follow the recommended setup methods and consult support documentation if installation issues occur.\n\n## 선정 기준과 저장소 정보\n\n- 2026-11-18 GitHub Trending 일간 목록에서 누적 Star 내림차순 상위 2개 선정\n- 누적 Star: 305,517 / 오늘 증가: 883\n- 주요 언어: JavaScript / 라이선스 표기: MIT\n- 저장소 보관 상태: 보관되지 않음\n- 수집 시각: 2026-11-18 10:16 KST\n\n이 글은 저장소 설명과 README를 바탕으로 AI가 요약한 문서 리뷰입니다. 직접 설치·실행한 결과가 아니며 Star 수는 수집 시점 기준입니다.\n\n## 참고 자료\n\n- [GitHub 저장소](https://github.com/affaan-m/ECC)\n- [원문 README](https://github.com/affaan-m/ECC/blob/main/README.md)\n- [GitHub Trending 일간 목록](https://github.com/trending?since=daily)\n",
+      "source": "github-trending",
+      "publicationDay": "2026-11-18",
+      "repository": {
+        "name": "affaan-m/ECC",
+        "url": "https://github.com/affaan-m/ECC",
+        "stars": 305517,
+        "todayStars": 883,
+        "description": "The agent harness performance optimization system. Skills, instincts, memory, security, and research-first development for Claude Code, Codex, Opencode, Cursor and beyond.",
+        "language": "JavaScript",
+        "license": "MIT",
+        "topics": [
+          "ai-agents",
+          "anthropic",
+          "claude",
+          "claude-code",
+          "developer-tools",
+          "llm",
+          "mcp",
+          "productivity"
+        ],
+        "updatedAt": "2026-11-17T06:41:46Z",
+        "archived": false
+      },
+      "readmeUrl": "https://github.com/affaan-m/ECC/blob/main/README.md",
+      "sortBy": "total"
     }
   ],
   "lastRun": {
-    "day": "2026-11-17",
+    "day": "2026-11-18",
     "sortBy": "total",
     "count": 2,
     "repositories": [
-      "sveltejs/svelte",
-      "mvanhorn/last30days-skill"
+      "obra/superpowers",
+      "affaan-m/ECC"
     ]
   }
 }
