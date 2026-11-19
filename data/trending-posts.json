@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-18T10:16:31.913770+09:00",
+  "updatedAt": "2026-11-19T14:53:52.650225+09:00",
   "posts": [
     {
       "id": "trending-2026-11-17-sveltejs--svelte",
@@ -144,10 +144,78 @@
       },
       "readmeUrl": "https://github.com/affaan-m/ECC/blob/main/README.md",
       "sortBy": "total"
+    },
+    {
+      "id": "trending-2026-11-19-obra--superpowers",
+      "title": "obra/superpowers: Agentic Skills Framework and Software Development Methodology",
+      "author": "devlog · GitHub Trending",
+      "date": "2026년 11월 19일 14:53:52",
+      "createdAt": 1795067632650,
+      "lastModified": null,
+      "content": "## 한눈에 보기\n\nSuperpowers is a comprehensive software development methodology designed for AI coding agents, centering on composable skills and guided instructions. It emphasizes a structured workflow starting from intent clarification and design approval, through detailed task planning, and autonomous subagent-driven development with enforced test-driven development practices. The methodology includes integrated debugging, collaboration, and code review skills to maintain quality and systematic progress. Superpowers supports multiple AI coding agent platforms through various plugin and installation methods, offering seamless integration and automation without special commands. The project advocates simplicity, evidence-based verification, and avoids ad-hoc coding practices.\n\n## 주요 기능\n\n- Composable skill-based architecture enabling modular AI agent behavior.\n- Automated subagent-driven development processes executing plans with continuous review.\n- Built-in test-driven development enforcing RED-GREEN-REFACTOR cycles and code verification.\n- Comprehensive debugging and diagnostic tools for session error analysis.\n\n## 이런 경우에 활용할 수 있어요\n\n- Facilitating structured AI-assisted software development workflows.\n- Automating project breakdown and task execution with autonomous coding agents.\n- Improving code quality with enforced testing and iterative code reviews.\n- Integrating AI coding agents across multiple environments via plugin marketplaces.\n\n## 시작하기\n\nInstallation varies by agent harness; users must install the Superpowers plugin separately for their specific coding agent, such as Claude Code, Codex CLI, or Hermes Agent, following harness-specific commands outlined in the README.\n\n## 도입 전에 확인할 점\n\n- Updates and compatibility depend on the specific coding agent platform used.\n- Long sessions on some agents might lose the bootstrap requiring session restarts.\n- Contributions to new skills are generally not accepted without prior agreement to maintain cross-agent compatibility.\n- Visual companion telemetry is enabled by default but can be disabled via environment variables to protect usage privacy.\n\n## 선정 기준과 저장소 정보\n\n- 2026-11-19 GitHub Trending 일간 목록에서 누적 Star 내림차순 상위 2개 선정\n- 누적 Star: 321,452 / 오늘 증가: 822\n- 주요 언어: Shell / 라이선스 표기: MIT\n- 저장소 보관 상태: 보관되지 않음\n- 수집 시각: 2026-11-19 14:53 KST\n\n이 글은 저장소 설명과 README를 바탕으로 AI가 요약한 문서 리뷰입니다. 직접 설치·실행한 결과가 아니며 Star 수는 수집 시점 기준입니다.\n\n## 참고 자료\n\n- [GitHub 저장소](https://github.com/obra/superpowers)\n- [원문 README](https://github.com/obra/superpowers/blob/main/README.md)\n- [GitHub Trending 일간 목록](https://github.com/trending?since=daily)\n",
+      "source": "github-trending",
+      "publicationDay": "2026-11-19",
+      "repository": {
+        "name": "obra/superpowers",
+        "url": "https://github.com/obra/superpowers",
+        "stars": 321452,
+        "todayStars": 822,
+        "description": "An agentic skills framework & software development methodology that works.",
+        "language": "Shell",
+        "license": "MIT",
+        "topics": [
+          "ai",
+          "brainstorming",
+          "coding",
+          "obra",
+          "sdlc",
+          "skills",
+          "subagent-driven-development",
+          "superpowers"
+        ],
+        "updatedAt": "2026-11-03T23:24:58Z",
+        "archived": false
+      },
+      "readmeUrl": "https://github.com/obra/superpowers/blob/main/README.md",
+      "sortBy": "total"
+    },
+    {
+      "id": "trending-2026-11-19-affaan-m--ECC",
+      "title": "affaan-m/ECC - Agent harness performance optimization system",
+      "author": "devlog · GitHub Trending",
+      "date": "2026년 11월 19일 14:53:52",
+      "createdAt": 1795067632650,
+      "lastModified": null,
+      "content": "## 한눈에 보기\n\nECC is an open-source engineering system designed to optimize AI agents like Claude Code, Codex, and others by providing coordinated skills, planning, testing, reviewing, and memory capabilities. It features 72 agents, 327 skills, and 98 command shims to facilitate a structured development workflow and improve productivity. ECC includes security scanning via AgentShield and supports multiple integration targets such as Claude Code, Codex, Qoder, and various other AI development environments. The project emphasizes installation through guided setup commands and discourages multiple simultaneous install methods for the same harness.\n\n## 주요 기능\n\n- Comprehensive agent system with specialized roles for planning, review, repair, security, and architecture.\n- Large set of reusable skills covering TDD, security, documentation, ML, frontend, and more.\n- Support for multiple AI coding harnesses including Claude Code, Codex, Qoder, and adapters for other platforms.\n- AgentShield for security scanning of prompts, hooks, configurations, and secrets.\n\n## 이런 경우에 활용할 수 있어요\n\n- Enhancing AI agent capabilities for planning and executing coding tasks coherently.\n- Continuous learning and memory to improve agent performance over time.\n- Security auditing and verification of AI-generated code and configurations.\n- Integration in developer workflows on various AI-powered code generation platforms.\n\n## 시작하기\n\nThe README recommends installing ECC via the universal guided setup using Node.js 18+ with the command `npx ecc-universal@2.2.3 setup`. This walk-through supports setting up ECC for Claude Code and other agents, validating prerequisites (Node.js, Git, Claude Code), and verifying installation. Alternative setups via native plugin commands inside Claude Code or guided installation for Codex and Qoder are described.\n\n## 도입 전에 확인할 점\n\n- Install ECC only from official verified channels such as the GitHub repo and official npm packages to avoid malware risks.\n- Avoid stacking multiple installation methods for the same AI harness to prevent duplicated configurations and potential conflicts.\n- Native Claude Code plugins do not distribute rules; users must add rule packs manually for languages/frameworks in use.\n- Users should run diagnostic and repair commands before reinstalling if local Claude setup is reset, as reinstalling from scratch is unnecessary.\n\n## 선정 기준과 저장소 정보\n\n- 2026-11-19 GitHub Trending 일간 목록에서 누적 Star 내림차순 상위 2개 선정\n- 누적 Star: 306,710 / 오늘 증가: 1,108\n- 주요 언어: JavaScript / 라이선스 표기: MIT\n- 저장소 보관 상태: 보관되지 않음\n- 수집 시각: 2026-11-19 14:53 KST\n\n이 글은 저장소 설명과 README를 바탕으로 AI가 요약한 문서 리뷰입니다. 직접 설치·실행한 결과가 아니며 Star 수는 수집 시점 기준입니다.\n\n## 참고 자료\n\n- [GitHub 저장소](https://github.com/affaan-m/ECC)\n- [원문 README](https://github.com/affaan-m/ECC/blob/main/README.md)\n- [GitHub Trending 일간 목록](https://github.com/trending?since=daily)\n",
+      "source": "github-trending",
+      "publicationDay": "2026-11-19",
+      "repository": {
+        "name": "affaan-m/ECC",
+        "url": "https://github.com/affaan-m/ECC",
+        "stars": 306710,
+        "todayStars": 1108,
+        "description": "The agent harness performance optimization system. Skills, instincts, memory, security, and research-first development for Claude Code, Codex, Opencode, Cursor and beyond.",
+        "language": "JavaScript",
+        "license": "MIT",
+        "topics": [
+          "ai-agents",
+          "anthropic",
+          "claude",
+          "claude-code",
+          "developer-tools",
+          "llm",
+          "mcp",
+          "productivity"
+        ],
+        "updatedAt": "2026-11-17T06:41:46Z",
+        "archived": false
+      },
+      "readmeUrl": "https://github.com/affaan-m/ECC/blob/main/README.md",
+      "sortBy": "total"
     }
   ],
   "lastRun": {
-    "day": "2026-11-18",
+    "day": "2026-11-19",
     "sortBy": "total",
     "count": 2,
     "repositories": [
