@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-20T14:42:32.330928+09:00",
+  "updatedAt": "2026-11-21T14:37:32.706387+09:00",
   "posts": [
     {
       "id": "trending-2026-11-17-sveltejs--svelte",
@@ -291,10 +291,89 @@
       },
       "readmeUrl": "https://github.com/firecrawl/firecrawl/blob/main/README.md",
       "sortBy": "total"
+    },
+    {
+      "id": "trending-2026-11-21-obra--superpowers",
+      "title": "obra/superpowers: An agentic skills framework and software development methodology",
+      "author": "devlog · GitHub Trending",
+      "date": "2026년 11월 21일 14:37:32",
+      "createdAt": 1795239452706,
+      "lastModified": null,
+      "content": "## 한눈에 보기\n\nSuperpowers is a comprehensive software development methodology designed for coding agents. It starts by eliciting clear project specifications through interactive brainstorming, then creates detailed implementation plans with bite-sized tasks. The system enforces test-driven development with continuous review, using subagent-driven workflows for autonomous task execution. It integrates with multiple coding agent platforms through plugins, adapting to different environments. The focus is on systematic, evidence-based software delivery emphasizing simplicity and verification.\n\n## 주요 기능\n\n- Interactive brainstorming to clarify project requirements before coding.\n- Automated planning that breaks work into small, test-driven tasks.\n- Subagent-driven development enabling parallel task execution and review.\n- Integration with various coding agents via dedicated plugins and marketplaces.\n\n## 이런 경우에 활용할 수 있어요\n\n- Automating software development workflows with AI coding agents.\n- Ensuring test-driven, systematic development in complex projects.\n- Facilitating parallelized multi-agent task breakdown and execution.\n- Enhancing collaboration between developers and AI through structured plans and reviews.\n\n## 시작하기\n\nInstallation depends on the target coding agent, with Superpowers available as plugins in multiple marketplaces such as Claude Code, Codex, Cursor, and others. Users install the plugin per their platform using provided commands or marketplace interfaces and restart sessions to activate skills.\n\n## 도입 전에 확인할 점\n\n- Installation procedures vary significantly across different coding agents and must be followed per platform.\n- Long sessions in some agents (e.g., Hermes) may lose skill activation after session compactions, requiring fresh sessions.\n- Certain features depend on active approvals or restarting sessions to trigger hooks properly.\n- Contributions of new skills are generally not accepted unless maintaining compatibility with all supported agents.\n\n## 선정 기준과 저장소 정보\n\n- 2026-11-21 GitHub Trending 일간 목록에서 누적 Star 내림차순 상위 2개 선정\n- 누적 Star: 322,959 / 오늘 증가: 890\n- 주요 언어: Shell / 라이선스 표기: MIT\n- 저장소 보관 상태: 보관되지 않음\n- 수집 시각: 2026-11-21 14:37 KST\n\n이 글은 저장소 설명과 README를 바탕으로 AI가 요약한 문서 리뷰입니다. 직접 설치·실행한 결과가 아니며 Star 수는 수집 시점 기준입니다.\n\n## 참고 자료\n\n- [GitHub 저장소](https://github.com/obra/superpowers)\n- [원문 README](https://github.com/obra/superpowers/blob/main/README.md)\n- [GitHub Trending 일간 목록](https://github.com/trending?since=daily)\n",
+      "source": "github-trending",
+      "publicationDay": "2026-11-21",
+      "repository": {
+        "name": "obra/superpowers",
+        "url": "https://github.com/obra/superpowers",
+        "stars": 322959,
+        "todayStars": 890,
+        "description": "An agentic skills framework & software development methodology that works.",
+        "language": "Shell",
+        "license": "MIT",
+        "topics": [
+          "ai",
+          "brainstorming",
+          "coding",
+          "obra",
+          "sdlc",
+          "skills",
+          "subagent-driven-development",
+          "superpowers"
+        ],
+        "updatedAt": "2026-11-03T23:24:58Z",
+        "archived": false
+      },
+      "readmeUrl": "https://github.com/obra/superpowers/blob/main/README.md",
+      "sortBy": "total"
+    },
+    {
+      "id": "trending-2026-11-21-firecrawl--firecrawl",
+      "title": "firecrawl/firecrawl - 지능형 AI 에이전트를 위한 웹 크롤링 및 검색 인프라",
+      "author": "devlog · GitHub Trending",
+      "date": "2026년 11월 21일 14:37:32",
+      "createdAt": 1795239452706,
+      "lastModified": null,
+      "content": "## 한눈에 보기\n\nFirecrawl은 AI 에이전트가 더 똑똑해지도록 지원하는 지식 인프라를 제공합니다. 단일 API를 통해 550개 이상의 데이터 공급자를 검색, 스크랩, 접근할 수 있으며, 로컬 실행 및 클라우드 호스팅, 자체 호스팅 옵션을 갖추고 있습니다. 웹사이트를 구조화된 마크다운, JSON 등으로 변환하고, AI 에이전트와 통합하여 웹 상호작용, 검색, 크롤링, 에이전트 기반 자율 수집 기능을 제공합니다. 다양한 SDK와 CLI 툴을 통해 여러 언어 환경에 쉽게 연동할 수 있습니다.\n\n## 주요 기능\n\n- 550개 이상의 데이터 공급자에 단일 API로 접근 가능\n- 웹사이트를 클린한 마크다운, 구조화된 JSON, 스크린샷 등으로 스크랩\n- AI 에이전트에서 직접 사용할 수 있는 인터랙션 및 자율 에이전트 기능 제공\n- 로컬, 클라우드, 자체 호스팅 방식 모두 지원\n\n## 이런 경우에 활용할 수 있어요\n\n- AI 에이전트에 실시간 웹 데이터 공급 및 지식 확장\n- 웹사이트 전체 크롤링과 데이터 저장 자동화\n- 검색 기능과 웹 페이지 스크랩을 통한 정보 수집 및 분석\n- 비즈니스용 데이터 제공자 및 라이브 웹 데이터 통합\n\n## 시작하기\n\n로컬에서 Rust 환경과 C 컴파일러를 준비한 후 'cargo install firecrawl-local'을 실행하여 Firecrawl Local을 설치합니다. 이후 명령어로 웹 페이지를 스크랩, 크롤, 맵핑하거나 API 서버를 로컬에서 실행할 수 있습니다. 클라우드 버전은 별도 가입 없이 npx cli 명령어로 사용 가능합니다.\n\n## 도입 전에 확인할 점\n\n- 웹사이트의 로봇 배제 표준과 이용 약관을 준수해야 함\n- 로컬 실행 시 Rust 환경과 시스템 의존성(예: Xcode, build-essential)이 필요함\n- 자체 호스팅 시 Redis, PostgreSQL 등 외부 서비스 구성 필요\n- 클라우드 API 사용 시 API 키 및 과금 정책을 확인해야 함\n\n## 선정 기준과 저장소 정보\n\n- 2026-11-21 GitHub Trending 일간 목록에서 누적 Star 내림차순 상위 2개 선정\n- 누적 Star: 205,471 / 오늘 증가: 1,241\n- 주요 언어: TypeScript / 라이선스 표기: AGPL-3.0\n- 저장소 보관 상태: 보관되지 않음\n- 수집 시각: 2026-11-21 14:37 KST\n\n이 글은 저장소 설명과 README를 바탕으로 AI가 요약한 문서 리뷰입니다. 직접 설치·실행한 결과가 아니며 Star 수는 수집 시점 기준입니다.\n\n## 참고 자료\n\n- [GitHub 저장소](https://github.com/firecrawl/firecrawl)\n- [원문 README](https://github.com/firecrawl/firecrawl/blob/main/README.md)\n- [GitHub Trending 일간 목록](https://github.com/trending?since=daily)\n",
+      "source": "github-trending",
+      "publicationDay": "2026-11-21",
+      "repository": {
+        "name": "firecrawl/firecrawl",
+        "url": "https://github.com/firecrawl/firecrawl",
+        "stars": 205471,
+        "todayStars": 1241,
+        "description": "Knowledge infrastructure to make your agents smarter. Search, scrape and access 550+ data providers through one API.",
+        "language": "TypeScript",
+        "license": "AGPL-3.0",
+        "topics": [
+          "ai",
+          "ai-agents",
+          "ai-crawler",
+          "ai-scraping",
+          "ai-search",
+          "crawler",
+          "data-extraction",
+          "html-to-markdown",
+          "llm",
+          "markdown",
+          "scraper",
+          "scraping",
+          "web-crawler",
+          "web-data",
+          "web-data-extraction",
+          "web-scraper",
+          "web-scraping",
+          "web-search",
+          "webscraping"
+        ],
+        "updatedAt": "2026-11-21T03:40:37Z",
+        "archived": false
+      },
+      "readmeUrl": "https://github.com/firecrawl/firecrawl/blob/main/README.md",
+      "sortBy": "total"
     }
   ],
   "lastRun": {
-    "day": "2026-11-20",
+    "day": "2026-11-21",
     "sortBy": "total",
     "count": 2,
     "repositories": [
