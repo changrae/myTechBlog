@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-11-24T17:23:23.886206+09:00",
+  "updatedAt": "2026-11-25T15:58:54.410226+09:00",
   "posts": [
     {
       "id": "trending-2026-11-17-sveltejs--svelte",
@@ -607,10 +607,89 @@
       },
       "readmeUrl": "https://github.com/firecrawl/firecrawl/blob/main/README.md",
       "sortBy": "total"
+    },
+    {
+      "id": "trending-2026-11-25-obra--superpowers",
+      "title": "obra/superpowers: Agentic Skills Framework and Software Development Methodology",
+      "author": "devlog · GitHub Trending",
+      "date": "2026년 11월 25일 15:58:54",
+      "createdAt": 1795589934410,
+      "lastModified": null,
+      "content": "## 한눈에 보기\n\nSuperpowers is a comprehensive software development methodology designed for AI coding agents. It focuses on structured workflows that begin with extracting precise specifications through brainstorming, progressing to detailed planning and disciplined test-driven development. The system emphasizes subagent-driven development, where tasks are executed and reviewed autonomously by specialized agents. The methodology aims to deliver clear, incremental progress with mandatory quality checks embedded throughout the process.\n\n## 주요 기능\n\n- Stepwise workflow from brainstorming to finishing development branches\n- Subagent-driven task execution with two-stage review (spec compliance and code quality)\n- Enforcement of test-driven development with red-green-refactor cycle\n- Diagnostic skill to analyze and report issues in agent behavior with session transcripts\n\n## 이런 경우에 활용할 수 있어요\n\n- Automating software development tasks with AI coding agents\n- Ensuring rigorous test-driven development in automated coding workflows\n- Integrating multiple coding agent platforms via dedicated plugins\n- Leveraging a systematic methodology to reduce complexity and improve code quality\n\n## 시작하기\n\nInstallation depends on the coding agent harness used; Superpowers is offered as a plugin available through multiple marketplaces such as Claude Code, Codex, Cursor, and others. Users should follow the specific installation commands for their platform, which typically involve installing the plugin via the agent's plugin manager or command line interface.\n\n## 도입 전에 확인할 점\n\n- Some skills may trigger unexpectedly or not as intended, but a diagnostic skill is provided to analyze such issues\n- Updates may be coding agent dependent and can require manual intervention\n- New skill contributions are generally not accepted without maintainer approval\n- Visual telemetry is optional and can be disabled by environment variables to protect user privacy\n\n## 선정 기준과 저장소 정보\n\n- 2026-11-25 GitHub Trending 일간 목록에서 누적 Star 내림차순 상위 2개 선정\n- 누적 Star: 326,024 / 오늘 증가: 1,003\n- 주요 언어: Shell / 라이선스 표기: MIT\n- 저장소 보관 상태: 보관되지 않음\n- 수집 시각: 2026-11-25 15:58 KST\n\n이 글은 저장소 설명과 README를 바탕으로 AI가 요약한 문서 리뷰입니다. 직접 설치·실행한 결과가 아니며 Star 수는 수집 시점 기준입니다.\n\n## 참고 자료\n\n- [GitHub 저장소](https://github.com/obra/superpowers)\n- [원문 README](https://github.com/obra/superpowers/blob/main/README.md)\n- [GitHub Trending 일간 목록](https://github.com/trending?since=daily)\n",
+      "source": "github-trending",
+      "publicationDay": "2026-11-25",
+      "repository": {
+        "name": "obra/superpowers",
+        "url": "https://github.com/obra/superpowers",
+        "stars": 326024,
+        "todayStars": 1003,
+        "description": "An agentic skills framework & software development methodology that works.",
+        "language": "Shell",
+        "license": "MIT",
+        "topics": [
+          "ai",
+          "brainstorming",
+          "coding",
+          "obra",
+          "sdlc",
+          "skills",
+          "subagent-driven-development",
+          "superpowers"
+        ],
+        "updatedAt": "2026-11-24T23:59:04Z",
+        "archived": false
+      },
+      "readmeUrl": "https://github.com/obra/superpowers/blob/main/README.md",
+      "sortBy": "total"
+    },
+    {
+      "id": "trending-2026-11-25-firecrawl--firecrawl",
+      "title": "firecrawl/firecrawl: Knowledge infrastructure for smarter AI agents",
+      "author": "devlog · GitHub Trending",
+      "date": "2026년 11월 25일 15:58:54",
+      "createdAt": 1795589934410,
+      "lastModified": null,
+      "content": "## 한눈에 보기\n\nFirecrawl is an open-source knowledge infrastructure that enables AI agents to search, scrape, and interact with over 550 data providers through one unified API. It offers both a local binary for running web scraping and crawling on your machine, and a cloud service providing scalable access with enhanced features like structured JSON, LLM-ready markdown, and AI-driven web interactions. The platform supports autonomous data gathering via AI agents, multi-format output, and integration with popular AI clients. Users can also self-host the full server with databases and queues for greater control.\n\n## 주요 기능\n\n- Unified API for web search, scraping, crawling, and interaction with content.\n- Supports 550+ data providers through 'Alexandria' for extensive knowledge access beyond scraping.\n- Provides AI agent capabilities for autonomous data gathering and page interaction via prompts.\n- Multiple SDKs (Python, Node.js, Go, Java, Rust, Ruby, .NET, PHP, Elixir) enable easy integration across languages.\n\n## 이런 경우에 활용할 수 있어요\n\n- Integrate real-time web data extraction into AI agents or applications.\n- Autonomous AI agents performing web navigation, search, and data retrieval without manual URLs.\n- Batch scraping and crawling entire websites for structured LLM-ready content.\n- Access extensive datasets from multiple providers through a single API for enriched AI intelligence.\n\n## 시작하기\n\nInstall Firecrawl Local via Rust's cargo package manager or use the CLI to scrape or crawl URLs with commands provided. For cloud usage, obtain an API key from firecrawl.dev and call the API or SDK methods. The README includes usage examples for Local and Cloud modes, plus instructions for adding Firecrawl to AI agents.\n\n## 도입 전에 확인할 점\n\n- Users must respect websites' privacy policies, terms of use, and robots.txt when scraping.\n- Self-hosted deployment requires managing Redis, PostgreSQL, and browser services; not including Alexandria data provider.\n- Some advanced features like search and Alexandria are accessible only through Firecrawl Cloud or after login.\n- Running Firecrawl Local requires Rust and a C compiler; non-technical users may prefer Firecrawl Cloud.\n\n## 선정 기준과 저장소 정보\n\n- 2026-11-25 GitHub Trending 일간 목록에서 누적 Star 내림차순 상위 2개 선정\n- 누적 Star: 209,202 / 오늘 증가: 991\n- 주요 언어: TypeScript / 라이선스 표기: AGPL-3.0\n- 저장소 보관 상태: 보관되지 않음\n- 수집 시각: 2026-11-25 15:58 KST\n\n이 글은 저장소 설명과 README를 바탕으로 AI가 요약한 문서 리뷰입니다. 직접 설치·실행한 결과가 아니며 Star 수는 수집 시점 기준입니다.\n\n## 참고 자료\n\n- [GitHub 저장소](https://github.com/firecrawl/firecrawl)\n- [원문 README](https://github.com/firecrawl/firecrawl/blob/main/README.md)\n- [GitHub Trending 일간 목록](https://github.com/trending?since=daily)\n",
+      "source": "github-trending",
+      "publicationDay": "2026-11-25",
+      "repository": {
+        "name": "firecrawl/firecrawl",
+        "url": "https://github.com/firecrawl/firecrawl",
+        "stars": 209202,
+        "todayStars": 991,
+        "description": "Knowledge infrastructure to make your agents smarter. Search, scrape and access 550+ data providers through one API.",
+        "language": "TypeScript",
+        "license": "AGPL-3.0",
+        "topics": [
+          "ai",
+          "ai-agents",
+          "ai-crawler",
+          "ai-scraping",
+          "ai-search",
+          "crawler",
+          "data-extraction",
+          "html-to-markdown",
+          "llm",
+          "markdown",
+          "scraper",
+          "scraping",
+          "web-crawler",
+          "web-data",
+          "web-data-extraction",
+          "web-scraper",
+          "web-scraping",
+          "web-search",
+          "webscraping"
+        ],
+        "updatedAt": "2026-11-25T06:47:49Z",
+        "archived": false
+      },
+      "readmeUrl": "https://github.com/firecrawl/firecrawl/blob/main/README.md",
+      "sortBy": "total"
     }
   ],
   "lastRun": {
-    "day": "2026-11-24",
+    "day": "2026-11-25",
     "sortBy": "total",
     "count": 2,
     "repositories": [
